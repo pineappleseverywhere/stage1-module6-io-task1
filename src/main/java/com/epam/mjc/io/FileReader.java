@@ -1,15 +1,30 @@
 package com.epam.mjc.io;
 
-
-
-import java.io.File;
-
-
 import java.io.*;
+
+interface SimpleLogger {
+    void log(String message);
+}
+
+class ConsoleLogger implements SimpleLogger {
+    public void log(String message) {
+        System.out.println(message);
+    }
+}
 
 public class FileReader {
 
-    public Profile getDataFromFile(File file) {
+    private final SimpleLogger logger;
+
+    public FileReader() {
+        this(new ConsoleLogger());
+    }
+
+    public FileReader(SimpleLogger logger) {
+        this.logger = logger;
+    }
+
+    public Profile getDataFromFile(File file) { // Accept File argument
         Profile profile = new Profile();
         try (BufferedReader reader = new BufferedReader(new java.io.FileReader(file))) {
             String line;
@@ -31,14 +46,13 @@ public class FileReader {
                         profile.setPhone(Long.parseLong(value));
                         break;
                     default:
-                        // Handle unknown keys if needed
-                        System.out.println("Unknown key encountered: " + key);
+                        logger.log("Unknown key encountered: " + key);
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + file.getAbsolutePath());
+            logger.log("File not found: " + file.getAbsolutePath());
         } catch (IOException e) {
-            System.out.println("Error reading file: " + e.getMessage());
+            logger.log("Error reading file: " + e.getMessage());
         }
         return profile;
     }
@@ -46,8 +60,9 @@ public class FileReader {
 class Main {
     public static void main(String[] args) {
         FileReader fileReader = new FileReader();
-        File file = new File("C:\\Users\\2RS\\stage1-module6-io-task1\\src\\main\\resources\\Profile.txt"); // Specify the file path directly
-        Profile profile = fileReader.getDataFromFile(file);
+        File file = new File("C:\\Users\\2RS\\stage1-module6-io-task1\\src\\main\\resources\\Profile.txt");
+        Profile profile = fileReader.getDataFromFile(file); // Pass the File object
         System.out.println(profile);
     }
 }
+
